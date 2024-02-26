@@ -1,0 +1,6 @@
+﻿################################################################################
+# Tento soubor .gitignore byl automaticky vytvořen aplikací Microsoft(R) Visual Studio.
+################################################################################
+
+/Cv1/bin/Debug/net6.0
+/Cv1/obj
