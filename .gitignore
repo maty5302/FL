@@ -4,19 +4,7 @@
 
 /Cv1/bin/Debug/net6.0
 /Cv1/obj
-/Cv2/bin
-/Cv2/obj
-/.vs
-/.idea/.idea.PJP_Project/.idea
-/Cv2/bin/Debug/net6.0/Cv2
-/Cv2/obj/Cv2.csproj.nuget.dgspec.json
-/Cv2/obj/Cv2.csproj.nuget.g.props
-/Cv2/obj/Debug/net6.0/apphost
-/Cv2/obj/Debug/net6.0/Cv2.AssemblyInfo.cs
-/Cv2/obj/Debug/net6.0/Cv2.AssemblyInfoInputs.cache
-/Cv2/obj/Debug/net6.0/Cv2.assets.cache
-/Cv2/obj/Debug/net6.0/Cv2.csproj.AssemblyReference.cache
-/Cv2/obj/Debug/net6.0/Cv2.GeneratedMSBuildEditorConfig.editorconfig
-/Cv2/obj/Debug/net6.0/Cv2.GlobalUsings.g.cs
-/Cv2/obj/project.assets.json
-/Cv2/obj/project.nuget.cache
+obj
+bin
+.idea
+.vs
