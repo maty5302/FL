@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cv1", "Cv1\Cv1.csproj", "{33AC4917-A206-4CAF-B08C-7D34339AE67D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cv2", "Cv2\Cv2.csproj", "{D8A95AF1-8BDE-47C3-955F-F983375A476F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grammar", "Grammar\Grammar\Grammar.csproj", "{D6D31BA7-26A8-47BA-8C96-D2E518E4E3D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{33AC4917-A206-4CAF-B08C-7D34339AE67D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33AC4917-A206-4CAF-B08C-7D34339AE67D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33AC4917-A206-4CAF-B08C-7D34339AE67D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8A95AF1-8BDE-47C3-955F-F983375A476F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8A95AF1-8BDE-47C3-955F-F983375A476F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8A95AF1-8BDE-47C3-955F-F983375A476F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8A95AF1-8BDE-47C3-955F-F983375A476F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6D31BA7-26A8-47BA-8C96-D2E518E4E3D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6D31BA7-26A8-47BA-8C96-D2E518E4E3D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6D31BA7-26A8-47BA-8C96-D2E518E4E3D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6D31BA7-26A8-47BA-8C96-D2E518E4E3D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

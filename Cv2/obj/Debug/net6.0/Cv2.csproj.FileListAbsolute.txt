@@ -1,0 +1,15 @@
+/home/matej/Nextcloud/PJP_Project/Cv2/bin/Debug/net6.0/Cv2
+/home/matej/Nextcloud/PJP_Project/Cv2/bin/Debug/net6.0/Cv2.deps.json
+/home/matej/Nextcloud/PJP_Project/Cv2/bin/Debug/net6.0/Cv2.runtimeconfig.json
+/home/matej/Nextcloud/PJP_Project/Cv2/bin/Debug/net6.0/Cv2.dll
+/home/matej/Nextcloud/PJP_Project/Cv2/bin/Debug/net6.0/ref/Cv2.dll
+/home/matej/Nextcloud/PJP_Project/Cv2/bin/Debug/net6.0/Cv2.pdb
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/Cv2.csproj.AssemblyReference.cache
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/Cv2.GeneratedMSBuildEditorConfig.editorconfig
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/Cv2.AssemblyInfoInputs.cache
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/Cv2.AssemblyInfo.cs
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/Cv2.csproj.CoreCompileInputs.cache
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/Cv2.dll
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/ref/Cv2.dll
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/Cv2.pdb
+/home/matej/Nextcloud/PJP_Project/Cv2/obj/Debug/net6.0/Cv2.genruntimeconfig.cache
