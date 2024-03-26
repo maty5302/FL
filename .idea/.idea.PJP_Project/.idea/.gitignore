@@ -14,3 +14,5 @@
 .idea
 obj
 bin
+# GitHub Copilot persisted chat sessions
+/copilot/chatSessions
