@@ -37,7 +37,8 @@ statement
     | 'read' ID (',' ID)* ';'
     | 'write' expr (',' expr)* ';'
     | '{' statement+ '}'
-    | 'if' '(' expr ')' statement ('else' statement)?
+    | 'if' '(' expr ')' statement ('else' statement)?    
+    | 'do' statement 'while' '(' expr ')' ';'
     | 'while' '(' expr ')' statement
     | ';'
     ;

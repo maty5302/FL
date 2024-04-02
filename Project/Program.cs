@@ -23,5 +23,9 @@ class Program
         {
             Console.WriteLine(tree.ToStringTree(parser));
         }
+        else
+        {
+            Console.WriteLine("Syntax errors found.");
+        }
     }
 }
