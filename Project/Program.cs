@@ -18,10 +18,11 @@ class Program
         parser.AddErrorListener(new VerboseListener());
 
         IParseTree tree = parser.prog();
-
+        
         if(parser.NumberOfSyntaxErrors == 0)
         {
             Console.WriteLine(tree.ToStringTree(parser));
+            new EvalVisitor().Visit(tree);
         }
         else
         {

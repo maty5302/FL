@@ -4,44 +4,55 @@ grammar FL;
 prog: statement*EOF;
 
 
-expr:'-' expr
-    |'!' expr
-    | expr ('*'|'/'|'%') expr  
-    | expr ('+'|'-'|'.') expr  
-    | expr ('<'|'>') expr
-    | expr ('=='|'!=') expr
-    | expr '&&' expr
-    | expr '||' expr
-    | ID '=' expr
-    | ID
-    | INT  
-    | FLOAT    
-    | BOOLEAN
-    | STRING
-    | '(' expr ')' 
+expr:'-' expr #unaryMinus
+    |'!' expr #not
+    | expr op=('*'|'/'|'%') expr #mulDivMod  
+    | expr op=('+'|'-'|'.') expr #addSub
+    | expr op=('<'|'>') expr #ltGt
+    | expr op=('=='|'!=') expr #eqNe
+    | expr '&&' expr #and
+    | expr '||' expr #or
+    | <assoc=right> ID '=' expr #assign
+    | ID   #id
+    | INT  #int
+    | FLOAT #float   
+    | BOOLEAN #bool
+    | STRING #string
+    | '(' expr ')' #parens
     ;
 
 
+type : 'int' | 'string' | 'float' | 'bool' ;
+
+statement
+    : type ID (',' ID)* ';' #declaration
+    | expr ';' #printExpr
+    | 'read' ID (',' ID)* ';' #read
+    | 'write' expr (',' expr)* ';' #write
+    | '{' statement+ '}' #block
+    | 'if' '(' expr ')' statement ('else' statement)?  #if
+    | 'do' statement 'while' '(' expr ')' ';' #doWhile
+    | 'while' '(' expr ')' statement #while
+    | ';' #empty
+    ;
+
+AND: '&&';
+OR: '||';
+EQ: '==';
+NE: '!=';
+LT: '<' ;
+GT: '>' ;
+ADD: '+' ;
+SUB: '-' ;
+MUL: '*' ;
+DIV: '/' ;
+MOD: '%' ;
 INT : [1-9][0-9]* | [0] ;          // match integers
 FLOAT : [0-9]+[.][0-9]* ;
 BOOLEAN : 'true' | 'false' ;
 STRING : '"' SChar* '"' ;
 ID : [a-zA-Z] [a-zA-Z0-9]*;
 WS : [ \t\r\n]+ -> skip ;   // toss out whitespace
-
-type : 'int' | 'string' | 'float' | 'bool' ;
-
-statement
-    : type ID (',' ID)* ';'
-    | expr ';'
-    | 'read' ID (',' ID)* ';'
-    | 'write' expr (',' expr)* ';'
-    | '{' statement+ '}'
-    | 'if' '(' expr ')' statement ('else' statement)?    
-    | 'do' statement 'while' '(' expr ')' ';'
-    | 'while' '(' expr ')' statement
-    | ';'
-    ;
 
 fragment SChar
     : ~["\\\r\n]
