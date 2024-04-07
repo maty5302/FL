@@ -18,7 +18,7 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         }
         return (MyType.ERROR, -1);
     }
-    
+
     public override (MyType type, object value) VisitDeclaration(FLParser.DeclarationContext context)
     {
         var type = Visit(context.type());
@@ -26,7 +26,7 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         {
             symbolTable.Add(id.Symbol, type.type);
         }
-        return (MyType.ERROR, -1);
+        return (MyType.ERROR, 0);
     }
     
     public override (MyType type, object value) VisitType(FLParser.TypeContext context)
@@ -80,6 +80,38 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         return Visit(context.expr());
     }
     
+    public override (MyType type, object value) VisitNot(FLParser.NotContext context)
+    {
+        var value = Visit(context.expr());
+        if (value.type == MyType.ERROR)
+        {
+            return (MyType.ERROR, -1);
+        }
+        if (value.type != MyType.BOOL)
+        {
+            Errors.ReportError(context.Start, "Operand must be a boolean");
+            return (MyType.ERROR, -1);
+        }
+        return (MyType.BOOL, !(bool)value.value);
+    }
+
+    public override (MyType type, object value) VisitUnaryMinus(FLParser.UnaryMinusContext context)
+    {
+        var value = Visit(context.expr());
+        if (value.type == MyType.ERROR)
+        {
+            return (MyType.ERROR, -1);
+        }
+        if (value.type == MyType.INT)
+        {
+            return (MyType.INT, -(int)value.value);
+        }
+        else
+        {
+            return (MyType.FLOAT, -ToFloat(value.value));
+        }
+    }
+
     public override (MyType type, object value) VisitMulDivMod(FLParser.MulDivModContext context)
     {
         var left = Visit(context.expr(0));
@@ -116,7 +148,8 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
             }
             else if (context.op.Type == FLParser.MOD)
             {
-                return (MyType.FLOAT, ToFloat(left.value) % ToFloat(right.value));
+                Errors.ReportError(context.op, "Modulus operator cannot be used with float");
+                return (MyType.ERROR, -1);
             }
         }
         return (MyType.ERROR, -2);
@@ -210,7 +243,7 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
                 return (MyType.BOOL, (int)left.value != (int)right.value);
             }
         }
-        else //how about string compare? or bool?
+        else if(left.type==MyType.FLOAT && right.type==MyType.FLOAT) //how about string compare? or bool?
         {
             if (context.op.Type == FLParser.EQ)
             {
@@ -220,6 +253,33 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
             {
                 return (MyType.BOOL, ToFloat(left.value) != ToFloat(right.value));
             }
+        }
+        else if(left.type==MyType.STRING && right.type==MyType.STRING)
+        {
+            if (context.op.Type == FLParser.EQ)
+            {
+                return (MyType.BOOL, (string)left.value == (string)right.value);
+            }
+            else if (context.op.Type == FLParser.NE)
+            {
+                return (MyType.BOOL, (string)left.value != (string)right.value);
+            }
+        }
+        else if(left.type==MyType.BOOL && right.type==MyType.BOOL)
+        {
+            if (context.op.Type == FLParser.EQ)
+            {
+                return (MyType.BOOL, (bool)left.value == (bool)right.value);
+            }
+            else if (context.op.Type == FLParser.NE)
+            {
+                return (MyType.BOOL, (bool)left.value != (bool)right.value);
+            }
+        }
+        else
+        {
+            Errors.ReportError(context.op, "Both operands must be of the same type");
+            return (MyType.ERROR, -1);
         }
         return (MyType.ERROR, -2);
     }
@@ -255,9 +315,11 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         {
             return (MyType.BOOL, (bool)left.value || (bool)right.value);
         }
-        
-        
-        return (MyType.ERROR, -2);
+        else
+        {
+            Errors.ReportError(context.Start, "Both operands must be boolean");
+            return (MyType.ERROR, -1);
+        }
     }
     
     public override (MyType type, object value) VisitAssign(FLParser.AssignContext context)
@@ -270,17 +332,17 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         }
         if(left.Type == MyType.INT && right.type == MyType.FLOAT)
         {
-            // Error: Cannot convert float to int
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type int, but trying to assign float");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.INT && right.type == MyType.BOOL)
         {
-            // Error: Cannot convert bool to int
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type int, but trying to assign bool");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.INT && right.type == MyType.STRING)
         {
-            // Error: Cannot convert string to int
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type int, but trying to assign string");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.FLOAT && right.type == MyType.INT)
@@ -291,42 +353,42 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         }
         else if(left.Type==MyType.FLOAT && right.type == MyType.BOOL)
         {
-            // Error: Cannot convert bool to float
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type float, but trying to assign bool");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.FLOAT && right.type == MyType.STRING)
         {
-            // Error: Cannot convert string to float
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type float, but trying to assign string");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.BOOL && right.type == MyType.INT)
         {
-            // Error: Cannot convert int to bool
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type bool, but trying to assign int");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.BOOL && right.type == MyType.FLOAT)
         {
-            // Error: Cannot convert float to bool
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type bool, but trying to assign float");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.BOOL && right.type == MyType.STRING)
         {
-            // Error: Cannot convert string to bool
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type bool, but trying to assign string");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.STRING && right.type == MyType.INT)
         {
-            // Error: Cannot convert int to string
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type string, but trying to assign int");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.STRING && right.type == MyType.FLOAT)
         {
-            // Error: Cannot convert float to string
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type string, but trying to assign float");
             return (MyType.ERROR, -1);
         }
         else if(left.Type==MyType.STRING && right.type == MyType.BOOL)
         {
-            // Error: Cannot convert bool to string
+            Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type string, but trying to assign bool");
             return (MyType.ERROR, -1);
         }
         else
@@ -337,9 +399,41 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         
     }
 
-    public override (MyType type, object value) VisitRead(FLParser.ReadContext context)
+    public override (MyType type, object value) VisitIf(FLParser.IfContext context)
     {
-           
-        return (MyType.ERROR, -2);
+        var condition = Visit(context.expr());
+        if (condition.type != MyType.BOOL)
+        {
+            Errors.ReportError(context.expr().Start, "Condition must be a boolean");
+            return (MyType.ERROR, -1);
+        }
+        else
+        {
+            if ((bool)condition.value)
+            {
+                Visit(context.statement(0));
+            }
+            else if (context.statement().Length > 1)
+            {
+                Visit(context.statement(1));
+            }
+            
+            return (MyType.ERROR,0);
+        }
+    }
+    
+    public override (MyType type, object value) VisitWhile(FLParser.WhileContext context)
+    {
+        var condition = Visit(context.expr());
+        if (condition.type != MyType.BOOL)
+        {
+            Errors.ReportError(context.expr().Start, "Condition must be a boolean");
+            return (MyType.ERROR, -1);
+        }
+        else
+        {
+            Visit(context.statement());
+            return (MyType.ERROR, 0);
+        }
     }
 }

@@ -23,6 +23,7 @@ class Program
         {
             Console.WriteLine(tree.ToStringTree(parser));
             new EvalVisitor().Visit(tree);
+            Errors.PrintAndClearErrors();
         }
         else
         {

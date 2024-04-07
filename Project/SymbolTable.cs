@@ -1,4 +1,5 @@
 using Antlr4.Runtime;
+
 namespace Project;
 
 public class SymbolTable
@@ -45,8 +46,7 @@ public class SymbolTable
             }
             else
             {
-                // Error: Variable not declared
-                Console.WriteLine("Variable not declared");
+                Errors.ReportError(variable, $"Variable {name} was NOT declared.");
                 return (MyType.ERROR, -1);
             }
         }

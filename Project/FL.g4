@@ -30,7 +30,7 @@ statement
     | 'read' ID (',' ID)* ';' #read
     | 'write' expr (',' expr)* ';' #write
     | '{' statement+ '}' #block
-    | 'if' '(' expr ')' statement ('else' statement)?  #if
+    | 'if' '(' expr ')' statement ('else' statement)? #if
     | 'do' statement 'while' '(' expr ')' ';' #doWhile
     | 'while' '(' expr ')' statement #while
     | ';' #empty
