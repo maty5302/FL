@@ -12,7 +12,7 @@ public class SymbolTable
         var name = var.Text;
         if (memory.ContainsKey(name))
         {
-            // Error: Variable already declared
+            Errors.ReportError(var, $"Variable {name} was already declared.");
         }
         else
         {

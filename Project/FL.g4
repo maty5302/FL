@@ -12,6 +12,7 @@ expr:'-' expr #unaryMinus
     | expr op=('=='|'!=') expr #eqNe
     | expr '&&' expr #and
     | expr '||' expr #or
+    | expr '?' expr ':' expr  #ternary
     | <assoc=right> ID '=' expr #assign
     | ID   #id
     | INT  #int
@@ -36,8 +37,10 @@ statement
     | ';' #empty
     ;
 
+
 AND: '&&';
 OR: '||';
+CONCAT: '.';
 EQ: '==';
 NE: '!=';
 LT: '<' ;

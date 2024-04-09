@@ -175,7 +175,7 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
                 return (MyType.INT, (int)left.value - (int)right.value);
             }
         }
-        else
+        else if(left.type == MyType.FLOAT && right.type==MyType.FLOAT)
         {
             if (context.op.Type == FLParser.ADD)
             {
@@ -185,6 +185,23 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
             {
                 return (MyType.FLOAT, ToFloat(left.value) - ToFloat(right.value));
             }
+        }
+        else if (left.type == MyType.STRING && right.type == MyType.STRING)
+        {
+            if (context.op.Type == FLParser.CONCAT)
+            {
+                return (MyType.STRING, (string)left.value + (string)right.value);
+            }
+            else
+            {
+                Errors.ReportError(context.op, "You can concatenate only strings");
+                return (MyType.ERROR, -1);
+            }
+        }
+        else
+        {
+            Errors.ReportError(context.op,"You can add and subtract only numbers");
+            return (MyType.ERROR, -1);
         }
         return (MyType.ERROR, -2);
     }
@@ -326,6 +343,7 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
     {
         var right = Visit(context.expr());
         var left = symbolTable[context.ID().Symbol];
+        
         if( left.Type ==MyType.ERROR || right.type == MyType.ERROR)
         {
             return (MyType.ERROR, -1);
@@ -434,6 +452,55 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         {
             Visit(context.statement());
             return (MyType.ERROR, 0);
+        }
+    }
+    
+    public override (MyType type, object value) VisitTernary(FLParser.TernaryContext context)
+    {
+        var condition = Visit(context.expr(0));
+        
+        if (condition.type != MyType.BOOL)
+        {
+            Errors.ReportError(context.expr(0).Start, "Condition must be a boolean");
+            return (MyType.ERROR, -1);
+        }
+        else
+        {
+            var k= Visit(context.expr(1));
+            var l = Visit(context.expr(2));
+            if(k.type==MyType.FLOAT && l.type==MyType.FLOAT)
+            {
+                return (MyType.FLOAT, 0.0);
+            }
+            else if(k.type==MyType.INT && l.type==MyType.INT)
+            {
+                return (MyType.INT,0);
+            }
+            else if(k.type==MyType.INT && l.type==MyType.FLOAT)
+            {
+                return (MyType.FLOAT, 0.0);
+            }
+            else if(k.type==MyType.FLOAT && l.type==MyType.INT)
+            {
+                return (MyType.FLOAT, 0.0);
+            }
+            else if (k.type == MyType.BOOL && l.type == MyType.BOOL)
+            {
+                return (MyType.BOOL, false);
+            }
+            else if (k.type == MyType.STRING && l.type == MyType.STRING)
+            {
+                return (MyType.STRING, "");
+            }
+            else
+            {
+                if (k.type != l.type)
+                {
+                    Errors.ReportError(context.expr(2).Start, "Both expressions must be of the same type");
+                    return (MyType.ERROR, -1);
+                }
+                return (MyType.ERROR, -1);
+            }
         }
     }
 }
