@@ -14,6 +14,9 @@ namespace Project
         {
             foreach (var error in ErrorsData)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("[Error] ");
+                Console.ResetColor();
                 Console.WriteLine(error);
             }
             ErrorsData.Clear(); 

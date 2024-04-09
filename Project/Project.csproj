@@ -23,4 +23,19 @@
       <Content Include="FL.g4" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Input_files\input.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Input_files\PLC_t1.in">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Input_files\PLC_t2.in">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Input_files\PLC_t3.in">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
