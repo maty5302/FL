@@ -1,413 +1,358 @@
 namespace Project;
 
-public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
+public class EvalVisitor : FLBaseVisitor<MyType>
 {
-    SymbolTable symbolTable = new SymbolTable();
+    private SymbolTable symbolTable = new SymbolTable();
     
-    private float ToFloat(object value)
-    {
-        if (value is int x) return (float)x;
-        return (float)value;
-    }
-    
-    public override (MyType type, object value) VisitProg(FLParser.ProgContext context)
+    public override MyType VisitProg(FLParser.ProgContext context)
     {
         foreach (var statement in context.statement())
         {
             Visit(statement);
         }
-        return (MyType.ERROR, -1);
+        return MyType.ERROR;
     }
 
-    public override (MyType type, object value) VisitDeclaration(FLParser.DeclarationContext context)
+    public override MyType VisitDeclaration(FLParser.DeclarationContext context)
     {
         var type = Visit(context.type());
         foreach (var id in context.ID())
         {
-            symbolTable.Add(id.Symbol, type.type);
+            symbolTable.Add(id.Symbol, type);
         }
-        return (MyType.ERROR, 0);
+        return MyType.ERROR;
     }
     
-    public override (MyType type, object value) VisitType(FLParser.TypeContext context)
+    public override MyType VisitType(FLParser.TypeContext context)
     {
         if (context.GetText() == "int")
         {
-            return (MyType.INT, 0);
+            return MyType.INT;
         }
         else if (context.GetText() == "float")
         {
-            return (MyType.FLOAT, 0.0);
+            return MyType.FLOAT;
         }
         else if (context.GetText() == "bool")
         {
-            return (MyType.BOOL, false);
+            return MyType.BOOL;
         }
         else if (context.GetText() == "string")
         {
-            return (MyType.STRING, "");
+            return MyType.STRING;
         }
-        return (MyType.ERROR, -1);
+        return MyType.ERROR;
     }
     
-    public override (MyType type, object value) VisitFloat(FLParser.FloatContext context)
+    public override MyType VisitFloat(FLParser.FloatContext context)
     {
-        return (MyType.FLOAT, float.Parse(context.GetText()));
+        return MyType.FLOAT;
     }
     
-    public override (MyType type, object value) VisitInt(FLParser.IntContext context)
+    public override MyType VisitInt(FLParser.IntContext context)
     {
-        return (MyType.INT, int.Parse(context.GetText()));
+        return MyType.INT;
     }
     
-    public override (MyType type, object value) VisitString(FLParser.StringContext context)
+    public override MyType VisitString(FLParser.StringContext context)
     {
-        return (MyType.STRING, context.GetText());
+        return MyType.STRING;
     }
     
-    public override (MyType type, object value) VisitBool(FLParser.BoolContext context)
+    public override MyType VisitBool(FLParser.BoolContext context)
     {
-        return (MyType.BOOL, bool.Parse(context.GetText()));
+        return MyType.BOOL;
     }
     
-    public override (MyType type, object value) VisitId(FLParser.IdContext context)
+    public override MyType VisitId(FLParser.IdContext context)
     {
         return symbolTable[context.ID().Symbol];
     }
     
-    public override (MyType type, object value) VisitParens(FLParser.ParensContext context)
+    public override MyType VisitParens(FLParser.ParensContext context)
     {
         return Visit(context.expr());
     }
     
-    public override (MyType type, object value) VisitNot(FLParser.NotContext context)
+    public override MyType VisitNot(FLParser.NotContext context)
     {
         var value = Visit(context.expr());
-        if (value.type == MyType.ERROR)
+        if (value == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        if (value.type != MyType.BOOL)
+        if (value != MyType.BOOL)
         {
             Errors.ReportError(context.Start, "Operand must be a boolean");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        return (MyType.BOOL, !(bool)value.value);
+        return MyType.BOOL;
     }
 
-    public override (MyType type, object value) VisitUnaryMinus(FLParser.UnaryMinusContext context)
+    public override MyType VisitUnaryMinus(FLParser.UnaryMinusContext context)
     {
         var value = Visit(context.expr());
-        if (value.type == MyType.ERROR)
+        if (value == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        if (value.type == MyType.INT)
+        if (value == MyType.INT)
         {
-            return (MyType.INT, -(int)value.value);
+            return MyType.INT;
+        }
+        else if (value==MyType.FLOAT)
+        {
+            return MyType.FLOAT;
         }
         else
         {
-            return (MyType.FLOAT, -ToFloat(value.value));
+            Errors.ReportError(context.Start, "Operand must be a number");
+            return MyType.ERROR;
         }
     }
 
-    public override (MyType type, object value) VisitMulDivMod(FLParser.MulDivModContext context)
+    public override MyType VisitMulDivMod(FLParser.MulDivModContext context)
     {
         var left = Visit(context.expr(0));
         var right = Visit(context.expr(1));
-        if (left.type == MyType.ERROR || right.type == MyType.ERROR)
+        if (left == MyType.ERROR || right == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         
-        if (left.type == MyType.INT && right.type == MyType.INT)
+        if (left == MyType.INT && right == MyType.INT)
         {
             if (context.op.Type == FLParser.MUL)
             {
-                return (MyType.INT, (int)left.value * (int)right.value);
+                return MyType.INT;
             }
             else if (context.op.Type == FLParser.DIV)
             {
-                return (MyType.INT, (int)left.value / (int)right.value);
+                return MyType.INT;
             }
             else if (context.op.Type == FLParser.MOD)
             {
-                return (MyType.INT, (int)left.value % (int)right.value);
+                return MyType.INT;
             }
         }
-        else
+        else //todo fix
         {
             if (context.op.Type == FLParser.MUL)
             {
-                return (MyType.FLOAT, ToFloat(left.value) * ToFloat(right.value));
+                return MyType.FLOAT;
             }
             else if (context.op.Type == FLParser.DIV)
             {
-                return (MyType.FLOAT, ToFloat(left.value) / ToFloat(right.value));
+                return MyType.FLOAT;
             }
             else if (context.op.Type == FLParser.MOD)
             {
                 Errors.ReportError(context.op, "Modulus operator cannot be used with float");
-                return (MyType.ERROR, -1);
+                return MyType.ERROR;
             }
         }
-        return (MyType.ERROR, -2);
+        return MyType.ERROR;
     }
     
-    public override (MyType type, object value) VisitAddSub(FLParser.AddSubContext context)
+    public override MyType VisitAddSub(FLParser.AddSubContext context)
     {
         var left = Visit(context.expr(0));
         var right = Visit(context.expr(1));
-        if (left.type == MyType.ERROR || right.type == MyType.ERROR)
+        if (left == MyType.ERROR || right == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         
-        if (left.type == MyType.INT && right.type == MyType.INT)
+        if (left == MyType.INT && right == MyType.INT)
         {
-            if (context.op.Type == FLParser.ADD)
+            if (context.op.Type == FLParser.ADD || context.op.Type == FLParser.SUB)
             {
-                return (MyType.INT, (int)left.value + (int)right.value);
-            }
-            else if (context.op.Type == FLParser.SUB)
-            {
-                return (MyType.INT, (int)left.value - (int)right.value);
-            }
-        }
-        else if(left.type == MyType.FLOAT && right.type==MyType.FLOAT)
-        {
-            if (context.op.Type == FLParser.ADD)
-            {
-                return (MyType.FLOAT, ToFloat(left.value) + ToFloat(right.value));
-            }
-            else if (context.op.Type == FLParser.SUB)
-            {
-                return (MyType.FLOAT, ToFloat(left.value) - ToFloat(right.value));
-            }
-        }
-        else if (left.type == MyType.STRING && right.type == MyType.STRING)
-        {
-            if (context.op.Type == FLParser.CONCAT)
-            {
-                return (MyType.STRING, (string)left.value + (string)right.value);
+                return MyType.INT;
             }
             else
             {
-                Errors.ReportError(context.op, "You can concatenate only strings");
-                return (MyType.ERROR, -1);
+                Errors.ReportError(context.op, "You cannot concatenate numbers");
+                return MyType.ERROR;
+            }
+        }
+        else if(left == MyType.FLOAT && right==MyType.FLOAT)
+        {
+            if (context.op.Type == FLParser.ADD || context.op.Type == FLParser.SUB)
+            {
+                return MyType.FLOAT;
+            }
+            else
+            {
+                Errors.ReportError(context.op, "You cannot concatenate numbers");
+                return MyType.ERROR;
+            }
+        }
+        else if (left == MyType.STRING && right == MyType.STRING)
+        {
+            if (context.op.Type == FLParser.CONCAT)
+            {
+                return (MyType.STRING);
+            }
+            else
+            {
+                Errors.ReportError(context.op, "You cannot subtract and and strings");
+                return MyType.ERROR;
             }
         }
         else
         {
-            Errors.ReportError(context.op,"You can add and subtract only numbers");
-            return (MyType.ERROR, -1);
+            Errors.ReportError(context.op,"You cannot add, subtract or concatenate bool");
+            return MyType.ERROR;
         }
-        return (MyType.ERROR, -2);
+        return MyType.ERROR;
     }
     
-    public override (MyType type, object value) VisitLtGt(FLParser.LtGtContext context)
+    public override MyType VisitLtGt(FLParser.LtGtContext context)
     {
         var left = Visit(context.expr(0));
         var right = Visit(context.expr(1));
-        if (left.type == MyType.ERROR || right.type == MyType.ERROR)
+        if (left == MyType.ERROR || right == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         
-        if (left.type == MyType.INT && right.type == MyType.INT)
+        if ((left == MyType.INT && right == MyType.INT) || (left == MyType.FLOAT && right == MyType.FLOAT))
         {
-            if (context.op.Type == FLParser.LT)
-            {
-                return (MyType.BOOL, (int)left.value < (int)right.value);
-            }
-            else if (context.op.Type == FLParser.GT)
-            {
-                return (MyType.BOOL, (int)left.value > (int)right.value);
-            }
+            return MyType.BOOL;
         }
         else
         {
-            if (context.op.Type == FLParser.LT)
-            {
-                return (MyType.BOOL, ToFloat(left.value) < ToFloat(right.value));
-            }
-            else if (context.op.Type == FLParser.GT)
-            {
-                return (MyType.BOOL, ToFloat(left.value) > ToFloat(right.value));
-            }
+            Errors.ReportError(context.op, "Both operands must be numbers");
+            return MyType.ERROR;
         }
-        return (MyType.ERROR, -2);
+        
     }
     
-    public override (MyType type, object value) VisitEqNe(FLParser.EqNeContext context)
+    public override MyType VisitEqNe(FLParser.EqNeContext context)
     {
         var left = Visit(context.expr(0));
         var right = Visit(context.expr(1));
-        if (left.type == MyType.ERROR || right.type == MyType.ERROR)
+        if (left == MyType.ERROR || right == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        
-        if (left.type == MyType.INT && right.type == MyType.INT)
+
+        if (left == right)
         {
-            if (context.op.Type == FLParser.EQ)
-            {
-                return (MyType.BOOL, (int)left.value == (int)right.value);
-            }
-            else if (context.op.Type == FLParser.NE)
-            {
-                return (MyType.BOOL, (int)left.value != (int)right.value);
-            }
-        }
-        else if(left.type==MyType.FLOAT && right.type==MyType.FLOAT) //how about string compare? or bool?
-        {
-            if (context.op.Type == FLParser.EQ)
-            {
-                return (MyType.BOOL, ToFloat(left.value) == ToFloat(right.value));
-            }
-            else if (context.op.Type == FLParser.NE)
-            {
-                return (MyType.BOOL, ToFloat(left.value) != ToFloat(right.value));
-            }
-        }
-        else if(left.type==MyType.STRING && right.type==MyType.STRING)
-        {
-            if (context.op.Type == FLParser.EQ)
-            {
-                return (MyType.BOOL, (string)left.value == (string)right.value);
-            }
-            else if (context.op.Type == FLParser.NE)
-            {
-                return (MyType.BOOL, (string)left.value != (string)right.value);
-            }
-        }
-        else if(left.type==MyType.BOOL && right.type==MyType.BOOL)
-        {
-            if (context.op.Type == FLParser.EQ)
-            {
-                return (MyType.BOOL, (bool)left.value == (bool)right.value);
-            }
-            else if (context.op.Type == FLParser.NE)
-            {
-                return (MyType.BOOL, (bool)left.value != (bool)right.value);
-            }
+            return MyType.BOOL;
         }
         else
         {
             Errors.ReportError(context.op, "Both operands must be of the same type");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        return (MyType.ERROR, -2);
     }
     
-    public override (MyType type, object value) VisitAnd(FLParser.AndContext context)
+    public override MyType VisitAnd(FLParser.AndContext context)
     {
         var left = Visit(context.expr(0));
         var right = Visit(context.expr(1));
-        if (left.type == MyType.ERROR || right.type == MyType.ERROR)
+        if (left == MyType.ERROR || right == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         
-        if (left.type == MyType.BOOL && right.type == MyType.BOOL)
+        if (left == MyType.BOOL && right == MyType.BOOL)
         {
-            return (MyType.BOOL, (bool)left.value && (bool)right.value);
+            return MyType.BOOL;
         }
         
         
-        return (MyType.ERROR, -2);
+        return MyType.ERROR;
     }
     
-    public override (MyType type, object value) VisitOr(FLParser.OrContext context)
+    public override MyType VisitOr(FLParser.OrContext context)
     {
         var left = Visit(context.expr(0));
         var right = Visit(context.expr(1));
-        if (left.type == MyType.ERROR || right.type == MyType.ERROR)
+        if (left == MyType.ERROR || right == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         
-        if (left.type == MyType.BOOL && right.type == MyType.BOOL)
+        if (left == MyType.BOOL && right == MyType.BOOL)
         {
-            return (MyType.BOOL, (bool)left.value || (bool)right.value);
+            return MyType.BOOL;
         }
         else
         {
             Errors.ReportError(context.Start, "Both operands must be boolean");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
     }
     
-    public override (MyType type, object value) VisitAssign(FLParser.AssignContext context)
+    public override MyType VisitAssign(FLParser.AssignContext context)
     {
         var right = Visit(context.expr());
         var left = symbolTable[context.ID().Symbol];
         
-        if( left.Type ==MyType.ERROR || right.type == MyType.ERROR)
+        if( left ==MyType.ERROR || right == MyType.ERROR)
         {
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        if(left.Type == MyType.INT && right.type == MyType.FLOAT)
+        if(left == MyType.INT && right == MyType.FLOAT)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type int, but trying to assign float");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.INT && right.type == MyType.BOOL)
+        else if(left==MyType.INT && right == MyType.BOOL)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type int, but trying to assign bool");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.INT && right.type == MyType.STRING)
+        else if(left==MyType.INT && right == MyType.STRING)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type int, but trying to assign string");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.FLOAT && right.type == MyType.INT)
+        else if(left==MyType.FLOAT && right == MyType.INT)
         {
-            var val = (MyType.FLOAT, ToFloat(right.value));
-            symbolTable[context.ID().Symbol] = val;
-            return val; 
+            return MyType.FLOAT;
         }
-        else if(left.Type==MyType.FLOAT && right.type == MyType.BOOL)
+        else if(left==MyType.FLOAT && right == MyType.BOOL)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type float, but trying to assign bool");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.FLOAT && right.type == MyType.STRING)
+        else if(left==MyType.FLOAT && right == MyType.STRING)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type float, but trying to assign string");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.BOOL && right.type == MyType.INT)
+        else if(left==MyType.BOOL && right == MyType.INT)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type bool, but trying to assign int");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.BOOL && right.type == MyType.FLOAT)
+        else if(left==MyType.BOOL && right == MyType.FLOAT)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type bool, but trying to assign float");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.BOOL && right.type == MyType.STRING)
+        else if(left==MyType.BOOL && right == MyType.STRING)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type bool, but trying to assign string");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.STRING && right.type == MyType.INT)
+        else if(left==MyType.STRING && right == MyType.INT)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type string, but trying to assign int");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.STRING && right.type == MyType.FLOAT)
+        else if(left==MyType.STRING && right == MyType.FLOAT)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type string, but trying to assign float");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
-        else if(left.Type==MyType.STRING && right.type == MyType.BOOL)
+        else if(left==MyType.STRING && right == MyType.BOOL)
         {
             Errors.ReportError(context.ID().Symbol,$"Variable {context.ID().Symbol.Text} is of type string, but trying to assign bool");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         else
         {
@@ -417,90 +362,63 @@ public class EvalVisitor : FLBaseVisitor<(MyType type, object value)>
         
     }
 
-    public override (MyType type, object value) VisitIf(FLParser.IfContext context)
+    public override MyType VisitIf(FLParser.IfContext context)
     {
         var condition = Visit(context.expr());
-        if (condition.type != MyType.BOOL)
+        if (condition != MyType.BOOL)
         {
             Errors.ReportError(context.expr().Start, "Condition must be a boolean");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         else
         {
-            if ((bool)condition.value)
-            {
-                Visit(context.statement(0));
-            }
-            else if (context.statement().Length > 1)
-            {
-                Visit(context.statement(1));
-            }
-            
-            return (MyType.ERROR,0);
+            return MyType.BOOL;
         }
     }
     
-    public override (MyType type, object value) VisitWhile(FLParser.WhileContext context)
+    public override MyType VisitWhile(FLParser.WhileContext context)
     {
         var condition = Visit(context.expr());
-        if (condition.type != MyType.BOOL)
+        if (condition != MyType.BOOL)
         {
             Errors.ReportError(context.expr().Start, "Condition must be a boolean");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         else
         {
-            Visit(context.statement());
-            return (MyType.ERROR, 0);
+            return Visit(context.statement());
         }
     }
     
-    public override (MyType type, object value) VisitTernary(FLParser.TernaryContext context)
+    public override MyType VisitTernary(FLParser.TernaryContext context)
     {
         var condition = Visit(context.expr(0));
         
-        if (condition.type != MyType.BOOL)
+        if (condition != MyType.BOOL)
         {
             Errors.ReportError(context.expr(0).Start, "Condition must be a boolean");
-            return (MyType.ERROR, -1);
+            return MyType.ERROR;
         }
         else
         {
             var k= Visit(context.expr(1));
             var l = Visit(context.expr(2));
-            if(k.type==MyType.FLOAT && l.type==MyType.FLOAT)
+           
+            
+            if(k==MyType.FLOAT || l==MyType.FLOAT)
             {
-                return (MyType.FLOAT, 0.0);
+                return MyType.FLOAT;
             }
-            else if(k.type==MyType.INT && l.type==MyType.INT)
+            else if(k != l)
             {
-                return (MyType.INT,0);
-            }
-            else if(k.type==MyType.INT && l.type==MyType.FLOAT)
-            {
-                return (MyType.FLOAT, 0.0);
-            }
-            else if(k.type==MyType.FLOAT && l.type==MyType.INT)
-            {
-                return (MyType.FLOAT, 0.0);
-            }
-            else if (k.type == MyType.BOOL && l.type == MyType.BOOL)
-            {
-                return (MyType.BOOL, false);
-            }
-            else if (k.type == MyType.STRING && l.type == MyType.STRING)
-            {
-                return (MyType.STRING, "");
+                Errors.ReportError(context.expr(2).Start, "Both expressions must be of the same type");
+                return MyType.ERROR;
             }
             else
             {
-                if (k.type != l.type)
-                {
-                    Errors.ReportError(context.expr(2).Start, "Both expressions must be of the same type");
-                    return (MyType.ERROR, -1);
-                }
-                return (MyType.ERROR, -1);
+                return k;
             }
+
         }
     }
 }

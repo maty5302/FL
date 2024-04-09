@@ -5,7 +5,7 @@ namespace Project;
 public class SymbolTable
 {
 
-    Dictionary<string, (MyType type,object Value)> memory = new Dictionary<string, (MyType type, object Value)>();
+    Dictionary<string, MyType> memory = new Dictionary<string, MyType>();
 
     public void Add(IToken var, MyType type)
     {
@@ -18,24 +18,24 @@ public class SymbolTable
         {
             if(type==MyType.INT)
             {
-                memory.Add(name, (MyType.INT, 0));
+                memory.Add(name, (MyType.INT));
             }
             else if(type==MyType.FLOAT)
             {
-                memory.Add(name, (MyType.FLOAT, 0.0));
+                memory.Add(name, (MyType.FLOAT));
             }
             else if(type==MyType.BOOL)
             {
-                memory.Add(name, (MyType.BOOL, false));
+                memory.Add(name, (MyType.BOOL));
             }
             else if(type==MyType.STRING)
             {
-                memory.Add(name, (MyType.STRING, ""));
+                memory.Add(name, (MyType.STRING));
             }
         }
     }
 
-    public (MyType Type, object Value) this[IToken variable]
+    public MyType this[IToken variable]
     {
         get
         {
@@ -47,13 +47,13 @@ public class SymbolTable
             else
             {
                 Errors.ReportError(variable, $"Variable {name} was NOT declared.");
-                return (MyType.ERROR, -1);
+                return (MyType.ERROR);
             }
         }
         set
         {
             var name = variable.Text.Trim();
-            memory[name] = value;
+            // memory[name] = value;
         }
     }
 }
