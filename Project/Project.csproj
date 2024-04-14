@@ -25,7 +25,7 @@
 
     <ItemGroup>
       <None Update="Input_files\input.txt">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Input_files\PLC_t1.in">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
