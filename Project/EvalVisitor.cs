@@ -175,7 +175,7 @@ public class EvalVisitor : FLBaseVisitor<MyType>
                 return MyType.ERROR;
             }
         }
-        else if(left == MyType.FLOAT && right==MyType.FLOAT)
+        else if((left == MyType.FLOAT && right==MyType.FLOAT)||(left == MyType.FLOAT && right==MyType.INT)||(left == MyType.INT && right==MyType.FLOAT))
         {
             if (context.op.Type == FLParser.ADD || context.op.Type == FLParser.SUB)
             {
@@ -217,6 +217,10 @@ public class EvalVisitor : FLBaseVisitor<MyType>
         }
         
         if ((left == MyType.INT && right == MyType.INT) || (left == MyType.FLOAT && right == MyType.FLOAT))
+        {
+            return MyType.BOOL;
+        }
+        else if((left==MyType.FLOAT && right==MyType.INT)||(left==MyType.INT && right==MyType.FLOAT))
         {
             return MyType.BOOL;
         }
