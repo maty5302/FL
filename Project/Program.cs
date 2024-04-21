@@ -6,7 +6,7 @@ namespace Project;
 
 class Program
 {
-    public static string DeleteEmptyLines(string input)
+    private static string DeleteEmptyLines(string input)
     {
         string pattern = @"^\s*$[\r\n]*";
     
@@ -31,10 +31,11 @@ class Program
         
         if(parser.NumberOfSyntaxErrors == 0)
         {
-            // Console.ForegroundColor = ConsoleColor.Yellow;
-            // Console.Write("[Debug] ");
-            // Console.ResetColor();
-            // Console.WriteLine(tree.ToStringTree(parser));
+            //For debugging purposes uncomment the following lines
+            /* Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("[Debug] ");
+            Console.ResetColor();
+            Console.WriteLine(tree.ToStringTree(parser));*/ 
             new EvalVisitor().Visit(tree);
 
            if(Errors.NumberOfErrors==0)
@@ -58,6 +59,15 @@ class Program
                 Console.WriteLine(resParsed);
                 Console.ResetColor();
                 
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write("[Info] ");
+                Console.ResetColor();
+                Console.WriteLine("Running virtual machine...");
+                
+                VirtualMachine vm = new VirtualMachine(resParsed);
+                vm.Run();
+
+                
             }
             Errors.PrintAndClearErrors();
             
@@ -72,7 +82,7 @@ class Program
             Console.WriteLine("----------------------------------------");
         }
     }
-    static void Main(string[] args)
+    static void Main()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         var filePlc1 = "Input_files/PLC_t1.in";
@@ -81,8 +91,8 @@ class Program
         var fileName = "Input_files/input.txt";
         
         ParseFile(filePlc1);
-        ParseFile(filePlc2);
-        ParseFile(filePlc3);
+        //ParseFile(filePlc2);
+        ///ParseFile(filePlc3);
         //ParseFile(fileName);
         
     }
