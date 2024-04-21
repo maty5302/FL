@@ -131,13 +131,26 @@ public class EvalCompute : FLBaseVisitor<string>
         StringBuilder sb = new StringBuilder();
         var left = Visit(context.expr(0));
         var right = Visit(context.expr(1));
+        var datatype = "";
         sb.AppendLine(left);
-        if((left.Contains("push I") && right.Contains("push F")))
+        if((left.Contains("push I") && right.Contains("push F"))){
             sb.AppendLine("itof");
+            datatype = "F";
+        }
         sb.AppendLine(right);
         if (left.Contains("push F") && right.Contains("push I"))
+        {
             sb.AppendLine("itof");
-        sb.Append(context.op.Text == "+" ? "add" : context.op.Text == "-" ? "sub" : "concat");
+            datatype = "F";
+        }
+        if(right.Contains("F") && left.Contains("F"))
+            datatype = "F";
+        else if(right.Contains("I") && left.Contains("I"))
+            datatype = "I";
+        else if(right.Contains("S") && left.Contains("S"))
+            datatype = "S";
+
+        sb.Append(context.op.Text == "+" ? "add " + datatype : context.op.Text == "-" ? "sub " + datatype: "concat " + datatype);
         
         return sb.ToString();
     }
@@ -147,13 +160,27 @@ public class EvalCompute : FLBaseVisitor<string>
         StringBuilder sb = new StringBuilder();
         var left = Visit(context.expr(0));
         var right = Visit(context.expr(1));
+        var datatype = "";
         sb.AppendLine(left);
-        if((left.Contains("push I") && right.Contains("push F")))
+        if ((left.Contains("push I") && right.Contains("push F")))
+        {
             sb.AppendLine("itof");
+            datatype = "F";
+        }
+
         sb.AppendLine(right);
         if (left.Contains("push F") && right.Contains("push I"))
+        {
             sb.AppendLine("itof");
-        sb.Append(context.op.Text == "*" ? "mul" : context.op.Text == "/" ? "div" : "mod");
+            datatype = "F";
+        }
+        if(right.Contains("F") && left.Contains("F"))
+            datatype = "F";
+        else if(right.Contains("I") && left.Contains("I"))
+            datatype = "I";
+        else if(right.Contains("S") && left.Contains("S"))
+            datatype = "S";
+        sb.Append(context.op.Text == "*" ? "mul " + datatype : context.op.Text == "/" ? "div " + datatype : "mod " + datatype);
         return sb.ToString();
     }
     
