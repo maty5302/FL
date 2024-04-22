@@ -4,7 +4,7 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 namespace Project;
 
-class Program
+static class Program
 {
     private static string DeleteEmptyLines(string input)
     {
@@ -17,7 +17,7 @@ class Program
     private static void ParseFile(string fileName)
     {
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("[Info] ");
+        Console.Write("[Info] | ");
         Console.ResetColor();
         Console.WriteLine("Parsing: " + fileName);
         var inputFile = new StreamReader(fileName);
@@ -41,32 +41,55 @@ class Program
            if(Errors.NumberOfErrors==0)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("[Info] ");
+                Console.Write("[Info] | ");
                 Console.ResetColor();
                 Console.WriteLine("No syntax and type-check errors found.");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("[Info] ");
+                Console.Write("[Info] | ");
                 Console.ResetColor();
                 Console.WriteLine("Generating instructions...");
-                
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("[Debug] ");
-                var res = new EvalCompute().Visit(tree);
-                var resParsed = DeleteEmptyLines(res);
-                StreamWriter outputFile = new StreamWriter("output.txt");
-                outputFile.Write(resParsed);
-                outputFile.Close();
-                Console.WriteLine(resParsed);
-                Console.ResetColor();
-                
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write("[Info] ");
-                Console.ResetColor();
-                Console.WriteLine("Running virtual machine...");
-                
-                VirtualMachine vm = new VirtualMachine(resParsed);
-                vm.Run();
 
+                try
+                {
+                    var res = new EvalCompute().Visit(tree);
+                    var resParsed = DeleteEmptyLines(res);
+                    //For debugging purposes uncomment the following lines
+                    /*Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("[Debug] ");
+                    Console.WriteLine(resParsed);
+                    Console.ResetColor();*/
+
+                    string path = fileName.Replace('/', '-');
+                    StreamWriter outputFile = new StreamWriter($"instructions-{path}.txt");
+                    outputFile.Write(resParsed);
+                    outputFile.Close();
+                    
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("[Info] | ");
+                    Console.ResetColor();
+                    Console.WriteLine("Instructions generated.");
+                    
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("[Info] | ");
+                    Console.ResetColor();
+                    Console.WriteLine("Running virtual machine...");
+                
+                    VirtualMachine vm = new VirtualMachine(resParsed);
+                    vm.Run();
+                    
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("[Info] | ");
+                    Console.ResetColor();
+                    Console.WriteLine("Virtual machine finished. Exiting...");
+                }
+                catch (Exception e)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("[Error] | ");
+                    Console.WriteLine(e.ToString());
+                    Console.ResetColor();
+                    throw;
+                }
                 
             }
             Errors.PrintAndClearErrors();
@@ -76,7 +99,7 @@ class Program
         else
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("[Error] ");
+            Console.Write("[Error] | ");
             Console.ResetColor();
             Console.WriteLine("Syntax errors found.");
             Console.WriteLine("----------------------------------------");
@@ -88,11 +111,11 @@ class Program
         var filePlc1 = "Input_files/PLC_t1.in";
         var filePlc2 = "Input_files/PLC_t2.in";
         var filePlc3 = "Input_files/PLC_t3.in";
-        var fileName = "Input_files/input.txt";
+        //var fileName = "Input_files/input.txt";
         
         ParseFile(filePlc1);
-        //ParseFile(filePlc2);
-        ///ParseFile(filePlc3);
+        ParseFile(filePlc2);
+        ParseFile(filePlc3);
         //ParseFile(fileName);
         
     }
