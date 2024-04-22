@@ -1,6 +1,6 @@
 # FL
 
-Code compiler is a project that aims to create a simple programming language and its interpreter. The project is written in C# and it uses ANTLR to generate a parser for a language. 
+FL is a project that aims to create a simple programming language and its interpreter. The project is written in C# and it uses ANTLR to generate a parser for a language. 
 After the parser checks for syntax errors, then it goes and checks type checking. The language then generates instructions that are then processed through a virtual machine to get you an output.
 The language can do basic arithmetic operations, conditional statements, and loops.
 
@@ -28,10 +28,10 @@ There are the following literals:
 - strings - `string`  - text given in quotation marks: `"text"`. Escape sequences are optional in our strings.
 
 ### Variables
-Variable's identifiers are composed of letters and digits, and it must start with a letter. Each variable must be declared before it is used. Repeated declaration of a variable with the same name is an error. Variables must have one of the following types: `int`, `float`, `bool` or `string`. After the variables are declared, they have initial values: `0`, `0.0`, `""` respectively `false`.
+Variable identifiers are composed of letters and digits, and it must start with a letter. Each variable must be declared before it is used. Repeated declaration of a variable with the same name is an error. Variables must have one of the following types: `int`, `float`, `bool` or `string`. After the variables are declared, they have initial values: `0`, `0.0`, `""` respectively `false`.
 
 ### Statements
-Following statements are defined:
+The following statements are defined:
 - `;` - empty command.
 - `type variable, variable, ... ;` - declaration of variables, all these variables have the same type `type`. It can be one of: `int`, `float`, `bool`, `String`
 - `expression ;` - it evaluates given expression, the resulting value of the expression is ignored. Note, there can be some side effects like an assignment to a variable.
@@ -42,9 +42,9 @@ Following statements are defined:
 - `while (condition) statement` - a cycle - condition must be a `bool` expression. This cycle repeats the given statement while the condition holds (it is `true`).
 
 ### Expression
-Lists in expressions trees are literals or variables. Types of operands must preserve the type of the operator. If necessary, `int` values are **automatically** cast to `float`. In other words, the type of `5 + 5.5` is `float`, and number `5` which type `int` is automatically converted to `float`. There is **no** conversion from `float` to `int`!
+Lists in expression trees are literals or variables. Types of operands must preserve the type of the operator. If necessary, `int` values are **automatically** cast to `float`. In other words, the type of `5 + 5.5` is `float`, and the number `5` which type `int` is automatically converted to `float`. There is **no** conversion from `float` to `int`!
 
-Following table defines operators in our expressions. Operator Signature is defined using letters: 'I, R, B, S' which corresponds to types: `int`, `float`, `bool`, `string`.
+The following table defines operators in our expressions. Operator Signature is defined using letters: 'I, R, B, S' which corresponds to types: `int`, `float`, `bool`, `string`.
 
 | Description                 | Operator     | Operator's Signature                |
 |-----------------------------|--------------|-------------------------------------|
@@ -74,7 +74,7 @@ All operators (except `=`) have left associativity (`=` have right associativity
 9. `unary -`
 
 ## Our (Stack-based) Instructions Set
-All instructions are stack based. The main memory is a stack and while evaluating the instructions, the input data are taken from stack and the results are put also in stack.
+All instructions are stack-based. The main memory is a stack and while evaluating the instructions, the input data are taken from the stack and the results are put also in the stack.
 
 | Instruction | Description                                                                                                                                                           |
 |-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -84,23 +84,23 @@ All instructions are stack based. The main memory is a stack and while evaluatin
 | `div`       | binary `/`                                                                                                                                                            |
 | `mod`       | binary `%`                                                                                                                                                            |
 | `uminus`    | unary `-`                                                                                                                                                             |
-| `concat`    | binary `.` - concatenation of strings                                                                                                                                 |
+| `concat`    | binary `.` - a concatenation of strings                                                                                                                                 |
 | `and`       | binary `&&`                                                                                                                                                           |
 | `or`        | binary `\|\|`                                                                                                                                                         |
 | `gt`        | binary `>`                                                                                                                                                            |
 | `lt`        | binary `<`                                                                                                                                                            |
 | `eq`        | binary `==` - compares two values                                                                                                                                     |
 | `not`       | unary `!` - negating boolean value                                                                                                                                    |
-| `itof`      | Instruction takes int value from the stack, converts it to float and returns it to stack.                                                                             |
+| `itof`      | Instruction takes int value from the stack, converts it to float, and returns it to stack.                                                                             |
 | `push T x`  | Instruction pushes the value `x` of type `T`. Where `T` represents `I - int`, `F - float`, `S - string`, `B - bool`. Example: push I 10, push B true, push S "A B C " |
 | `pop`       | Instruction takes one value from the stack and discards it.                                                                                                           |
-| `load id`   | Instruction loads value of variable `id` on stack.                                                                                                                    |
-| `save id`   | Instruction takes value from the top of the stack and stores it into the variable with name `id`                                                                      |
-| `label n`   | Instruction marks the spot in source code with unique number `n`                                                                                                      |
+| `load id`   | Instruction loads value of variable `id` on the stack.                                                                                                                    |
+| `save id`   | Instruction takes value from the top of the stack and stores it into the variable with the name `id`                                                                      |
+| `label n`   | Instruction marks the spot in source code with the unique number `n`                                                                                                      |
 | `jmp n`     | Instruction jumps to the label defined by unique number `n`                                                                                                           |
-| `fjmp n`    | Instruction takes boolean value from the stack and if it is `false`, it will perform a jump to a label with unique number `n`                                         |
-| `print n`   | Instruction takes `n` values from stack and prints them on standard output                                                                                            |
-| `read T`    | Instruction reads value of type `T` (`I - int`, `F - float`, `S - string`, `B - bool`) from standard input and stores it on the stack                                 |
+| `fjmp n`    | Instruction takes a boolean value from the stack and if it is `false`, it will perform a jump to a label with the unique number `n`                                         |
+| `print n`   | Instruction takes `n` values from the stack and prints them on standard output                                                                                            |
+| `read T`    | Instruction reads the value of type `T` (`I - int`, `F - float`, `S - string`, `B - bool`) from standard input and stores it on the stack                                 |
 
 </details>
 
@@ -108,5 +108,5 @@ All instructions are stack based. The main memory is a stack and while evaluatin
 
 1. **Lexer and parser** - The lexer and parser are made with ANTLR after you define your grammar, which is done in the [FL.g4](Project/FL.g4) file. Using it, appropriate classes are generated into the project and then used in Program.cs for checking the syntax errors. It's trying to parse input which you can specify in Program.cs.
 2. **Type checking** - Type checking is done in the [EvalVisitor](Project/EvalVisitor.cs) class, using the parse tree generated by the parser and checking if the types of operands in the expressions are correct. It also checks for any bad assignment to a variable. [SymbolTable](Project/SymbolTable.cs) is used for storing information about variables and checking if they are already declared or not declared at all.
-3. **Making instructions** - Making instructions is done in the [EvalCompute.cs](Project/EvalCompute.cs) class. It takes a parse tree, which was type-checked, and generates stack-based instructions that are executed by an interpreter. 
+3. **Making instructions** - Making instructions is done in the [EvalCompute.cs](Project/EvalCompute.cs) class. It takes a parse tree, which was type-checked, and generates stack-based instructions that are executed by an virtual machine. 
 4. **Virtual machine** - The [Virtual machine](Project/VirtualMachine.cs) reads generated instructions and executes them using a stack and dictionary which acts as a memory.
