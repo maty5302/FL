@@ -4,7 +4,9 @@ namespace Project;
 
 public class VirtualMachine
 {
-    private Stack<object> stack;
+    private readonly string[] knownInstructions = new string[] { "push", "print", "save", "load", "add", "sub", "mul", "div", "and", "or", "itof", "concat", "mod", "uminus", "not", "read", "pop", "eq", "gt", "lt", "jmp", "fjmp", "label" };
+    
+    private readonly Stack<object> stack;
     private List<string[]> codeInstructions;
     private Dictionary<string, object> memory;
     
@@ -67,76 +69,12 @@ public class VirtualMachine
             {
                 stack.Push(memory[instruction[1]]);
             }
-            else if(instruction[0].StartsWith("add"))
-            {
-                var b = stack.Pop();
-                var a = stack.Pop();
-                if(a is int && b is int)
-                    stack.Push((int)a + (int)b);
-                else if(a is float && b is float)
-                    stack.Push((float)a + (float)b);
-            }
-            else if(instruction[0].StartsWith("sub"))
-            {
-                var b = stack.Pop();
-                var a = stack.Pop();
-                if(a is int && b is int)
-                    stack.Push((int)a - (int)b);
-                else if(a is float && b is float)
-                    stack.Push((float)a - (float)b);
-            }
-            else if(instruction[0].StartsWith("mul"))
-            {
-                var b = stack.Pop();
-                var a = stack.Pop();
-                if(a is int && b is int)
-                    stack.Push((int)a * (int)b);
-                else if(a is float && b is float)
-                    stack.Push((float)a * (float)b);
-            }
-            else if(instruction[0].StartsWith("div"))
-            {
-                var b = stack.Pop();
-                var a = stack.Pop();
-                if(a is int && b is int)
-                    stack.Push((int)a / (int)b);
-                else if(a is float && b is float)
-                    stack.Push((float)a / (float)b);
-            }
-            else if(instruction[0].StartsWith("and"))
-            {
-                var b = stack.Pop();
-                var a = stack.Pop();
-                if(a is bool && b is bool)
-                    stack.Push((bool)a && (bool)b);
-            }
-            else if(instruction[0].StartsWith("or"))
-            {
-                var b = stack.Pop();
-                var a = stack.Pop();
-                if(a is bool && b is bool)
-                    stack.Push((bool)a || (bool)b);
-            }
             else if(instruction[0].StartsWith("itof"))
             {
                 // int to float
                 var a = stack.Pop();
                 if(a is int)
                     stack.Push((float)(int)a);
-            }
-            else if (instruction[0].StartsWith("concat"))
-            {
-                var b = stack.Pop();
-                var a = stack.Pop();
-                if (a is string && b is string)
-                    stack.Push((string)a + (string)b);
-            }
-            else if (instruction[0].StartsWith("mod"))
-            {
-                var b = stack.Pop();
-                var a = stack.Pop();
-                if (a is int && b is int)
-                    stack.Push((int)a % (int)b);
             }
             else if (instruction[0].StartsWith("uminus"))
             {
@@ -154,50 +92,27 @@ public class VirtualMachine
             }
             else if (instruction[0].StartsWith("read"))
             {
-                var input = Console.ReadLine();
-                if (instruction[1] == "I")
-                    stack.Push(int.Parse(input));
-                else if (instruction[1] == "F")
-                    stack.Push(float.Parse(input));
-                else if (instruction[1] == "S")
-                    stack.Push(input);
-                else
-                    stack.Push(bool.Parse(input));
+                try
+                {
+                    var value = Console.ReadLine();
+                    if (instruction[1] == "I")
+                        stack.Push(int.Parse(value));
+                    else if (instruction[1] == "F")
+                        stack.Push(float.Parse(value));
+                    else if (instruction[1] == "S")
+                        stack.Push(value);
+                    else
+                        stack.Push(bool.Parse(value));  
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Invalid input");
+                    i--;
+                }
             }
             else if (instruction[0].StartsWith("pop"))
             {
                 stack.Pop();
-            }
-            else if (instruction[0].StartsWith("eq"))
-            {
-                var right = stack.Pop();
-                var left = stack.Pop();
-                if (left is int && right is int)
-                    stack.Push((int)left == (int)right);
-                else if (left is float && right is float)
-                    stack.Push((float)left == (float)right);
-                else if (left is bool && right is bool)
-                    stack.Push((bool)left == (bool)right);
-                else if (left is string && right is string)
-                    stack.Push((string)left == (string)right);
-            }
-            else if (instruction[0].StartsWith("gt"))
-            {
-                var right = stack.Pop();
-                var left = stack.Pop();
-                if (left is int && right is int)
-                    stack.Push((int)left > (int)right);
-                else if (left is float && right is float)
-                    stack.Push((float)left > (float)right);
-            }
-            else if(instruction[0].StartsWith("lt"))
-            {
-                var right = stack.Pop();
-                var left = stack.Pop();
-                if (left is int && right is int)
-                    stack.Push((int)left < (int)right);
-                else if (left is float && right is float)
-                    stack.Push((float)left < (float)right);
             }
             else if (instruction[0].StartsWith("jmp"))
             {
@@ -235,7 +150,59 @@ public class VirtualMachine
             }
             else
             {
-                throw new Exception("Invalid instruction");
+                if(!knownInstructions.Contains(instruction[0]))
+                    throw new Exception("Invalid instruction");
+                else
+                {
+                    var right = stack.Pop();
+                    var left = stack.Pop();
+                    switch (instruction[0])
+                    {
+                        case "add" when left is int left1 && right is int right1: stack.Push(left1+right1);
+                            break; 
+                        case "add" when left is float left1 && right is float right1: stack.Push(left1+right1);
+                            break;
+                        case "sub" when left is int left1 && right is int right1: stack.Push(left1-right1);
+                            break;
+                        case "sub" when left is float left1 && right is float right1: stack.Push(left1-right1);
+                            break;
+                        case "mul" when left is int left1 && right is int right1: stack.Push(left1*right1);
+                            break;
+                        case "mul" when left is float left1 && right is float right1: stack.Push(left1*right1);
+                            break;
+                        case "div" when left is int left1 && right is int right1: stack.Push(left1/right1);
+                            break;
+                        case "div" when left is float left1 && right is float right1: stack.Push(left1/right1);
+                            break;
+                        case "and" when left is bool left1 && right is bool right1: stack.Push(left1&&right1);
+                            break;
+                        case "or" when left is bool left1 && right is bool right1: stack.Push(left1||right1);
+                            break;
+                        case "eq" when left is int left1 && right is int right1: stack.Push(left1==right1);
+                            break;
+                        case "eq" when left is float left1 && right is float right1: stack.Push(left1==right1);
+                            break;
+                        case "eq" when left is bool left1 && right is bool right1: stack.Push(left1==right1);
+                            break;
+                        case "eq" when left is string left1 && right is string right1: stack.Push(left1==right1);
+                            break;
+                        case "gt" when left is int left1 && right is int right1: stack.Push(left1>right1);
+                            break;
+                        case "gt" when left is float left1 && right is float right1: stack.Push(left1>right1);
+                            break;
+                        case "lt" when left is int left1 && right is int right1: stack.Push(left1<right1);
+                            break;
+                        case "lt" when left is float left1 && right is float right1: stack.Push(left1<right1);
+                            break;
+                        case "mod" when left is int left1 && right is int right1: stack.Push(left1%right1);
+                            break;
+                        case "concat" when left is string left1 && right is string right1: stack.Push(left1+right1);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                
             }
         }
     }
